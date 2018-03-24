@@ -36,7 +36,7 @@ void csv_reader::read_csv_row (std::ifstream &infile, std::vector <float> &vec)
 	return;
 }
 
-void csv_reader::read_csv (std::ifstream &infile, std::vector <std::vector<float>> &vec)
+void csv_reader::read_csv (std::ifstream &infile, std::vector <std::vector<float> > &vec)
 {
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		read_csv_row(infile, vec[i]);
