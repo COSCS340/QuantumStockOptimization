@@ -1,5 +1,4 @@
-#ifndef _MARKOWITZ_H_
-#define _MARKOWITZ_H_
+#pragma once
 
 #include <vector>
 #include "stock_data.h"
@@ -31,5 +30,3 @@ namespace markowitz {
 			unsigned int n;
 	};
 };
-
-#endif

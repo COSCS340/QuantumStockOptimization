@@ -1,5 +1,4 @@
-#ifndef _STOCK_DATA_H_
-#define _STOCK_DATA_H_
+#pragma once
 
 #include <vector>
 #include <fstream>
@@ -15,6 +14,3 @@ namespace csv_reader {
 	void read_csv_row (std::ifstream &, std::vector <float> &);
 	void read_csv (std::ifstream &, std::vector <std::vector<float> > &);
 };
-
-
-#endif

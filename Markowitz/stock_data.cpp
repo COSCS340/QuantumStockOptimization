@@ -5,7 +5,6 @@
 
 #include <iostream>
 
-
 void csv_reader::get_stock_data (stock_data &data,
                                  std::ifstream &prc_file,
                                  std::ifstream &ret_file,
