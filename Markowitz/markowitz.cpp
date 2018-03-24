@@ -51,22 +51,22 @@ float classical::compute(std::vector <int> &x)
 	float penalty = 0.0f;
 	float covariance = 0.0f;
 
-	for (auto i = 0u; i < n; i++) {
+	for (unsigned int i = 0u; i < n; i++) {
 		returns += x[i]*data->ret[i];
 	}
 
 	float term1 = 0.0f;
 	float term2 = 0.0f;
-	for (auto i = 0u; i < n; i++) {
-		for (auto j = 0u; j < n; j++) {
+	for (unsigned int i = 0u; i < n; i++) {
+		for (unsigned int j = 0u; j < n; j++) {
 			term1 += x[i]*data->prc[i]*data->prc[j]*x[i];
 		}
 		term2 += x[i]*data->prc[i]*x[i]*b;
 	}
 	penalty = t1 - 2*t2 + b*b;
 
-	for (auto i = 0u; i < n; i++) {
-		for (auto j = 0u; j < n; j++) {
+	for (unsigned int i = 0u; i < n; i++) {
+		for (unsigned int j = 0u; j < n; j++) {
 			covariance += x[i]*x[j]*data->cov[i][j];
 		}
 	}
@@ -77,7 +77,7 @@ float classical::compute(std::vector <int> &x)
 void classical::inc_bvec(std::vector <int> &vec)
 {
 	int c = 1;
-	for (auto i = 0U; i < vec.size(); i++) {
+	for (unsigned int i = 0U; i < vec.size(); i++) {
 		int temp = vec[i];
 		vec[i] = vec[i] ^ c;
 		c = c & temp;

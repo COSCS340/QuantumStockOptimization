@@ -28,7 +28,7 @@ namespace markowitz {
 			stock_data *data;
 			float t1, t2, t3;
 			unsigned int b;
-			int n;
+			unsigned int n;
 	};
 };
 

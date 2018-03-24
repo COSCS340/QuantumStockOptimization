@@ -16,7 +16,7 @@ void csv_reader::get_stock_data (stock_data &data,
 	data.ret.resize(n);
 
 	data.cov.resize(n);
-	for (auto i = 0; i < n; i++) data.cov[i].resize(n);
+	for (unsigned int i = 0; i < n; i++) data.cov[i].resize(n);
 
 	read_csv_row(prc_file, data.prc);
 	read_csv_row(ret_file, data.ret);
@@ -27,7 +27,7 @@ void csv_reader::get_stock_data (stock_data &data,
 void csv_reader::read_csv_row (std::ifstream &infile, std::vector <float> &vec)
 {
 	std::string buffer;
-	for (auto i = 0; i < vec.size(); i++) {
+	for (unsigned int i = 0; i < vec.size(); i++) {
 		getline(infile, buffer, ',') ;
 		std::istringstream ss(buffer);
 		ss >> vec[i];
@@ -38,7 +38,7 @@ void csv_reader::read_csv_row (std::ifstream &infile, std::vector <float> &vec)
 
 void csv_reader::read_csv (std::ifstream &infile, std::vector <std::vector<float>> &vec)
 {
-	for (auto i = 0; i < vec.size(); i++) {
+	for (unsigned int i = 0; i < vec.size(); i++) {
 		read_csv_row(infile, vec[i]);
 	}
 	return;

@@ -8,6 +8,7 @@ int main(int argc, char **argv) {
 	std::ifstream prc_file;
 	std::ifstream ret_file;
 	std::ifstream cov_file;
+	
 	prc_file.open(argv[1]);
 	ret_file.open(argv[2]);
 	cov_file.open(argv[3]);

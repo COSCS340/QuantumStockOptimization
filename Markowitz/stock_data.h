@@ -7,7 +7,7 @@
 struct stock_data {
 	std::vector <float> prc;
 	std::vector <float> ret;
-	std::vector <std::vector<float>> cov;
+	std::vector <std::vector<float> > cov;
 };
 
 namespace csv_reader {
