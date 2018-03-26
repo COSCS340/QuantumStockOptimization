@@ -6,15 +6,18 @@
 namespace markowitz {
 	class quantum {
 		private:
-			stock_data *data;
+			stock_data data;
 	};
 
 	class classical {
 		public:
-			classical(stock_data *, unsigned int);
-			classical(stock_data *, unsigned int, float, float, float);
-			void adjust_weights(float, float, float);
-			void solve();
+
+			classical(stock_data, unsigned int);
+			classical(stock_data, unsigned int, float *);
+
+			void adjust_weights(float *);
+			void solve(); // TODO: Solution always all 1's
+
 			float get_minimum() {return minimum;};
 			std::vector<int> get_solution() {return solution;};
 
@@ -22,11 +25,11 @@ namespace markowitz {
 			void inc_bvec(std::vector <int> &);
 			float compute(std::vector <int> &);
 
-			std::vector <int> solution;
 			float minimum;
-			stock_data *data;
-			float t1, t2, t3;
-			unsigned int b;
-			unsigned int n;
+			std::vector <int> solution;
+
+			stock_data data;
+			float theta[3];
+			unsigned int b, n;
 	};
 };

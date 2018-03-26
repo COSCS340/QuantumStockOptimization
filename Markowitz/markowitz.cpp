@@ -1,32 +1,31 @@
 #include <vector>
-#include <iostream>
 #include <cmath>
 #include "markowitz.h"
 
 using namespace markowitz;
 
-classical::classical(stock_data *input, unsigned int budget)
+classical::classical(stock_data input, unsigned int budget)
 {
 	data = input;
-	n = input->prc.size();
+	n = input.prc.size();
 	b = budget;
 }
 
-classical::classical(stock_data *input, unsigned int budget, float O1, float O2, float O3)
+classical::classical(stock_data input, unsigned int budget, float *th)
 {
 	data = input;
-	n = input->prc.size();
-	t1 = O1;
-	t2 = O2;
-	t3 = O3;
+	n = input.prc.size();
+	theta[0] = th[0];
+	theta[1] = th[1];
+	theta[2] = th[2];
 	b = budget;
 }
 
-void classical::adjust_weights(float O1, float O2, float O3)
+void classical::adjust_weights(float *th)
 {
-	t1 = O1;
-	t2 = O2;
-	t3 = O3;
+	theta[0] = th[0];
+	theta[1] = th[1];
+	theta[2] = th[2];
 }
 
 void classical::solve()
@@ -52,26 +51,21 @@ float classical::compute(std::vector <int> &x)
 	float covariance = 0.0f;
 
 	for (unsigned int i = 0u; i < n; i++) {
-		returns += x[i]*data->ret[i];
+		returns -= x[i]*data.ret[i];
 	}
 
-	float term1 = 0.0f;
-	float term2 = 0.0f;
 	for (unsigned int i = 0u; i < n; i++) {
-		for (unsigned int j = 0u; j < n; j++) {
-			term1 += x[i]*data->prc[i]*data->prc[j]*x[i];
-		}
-		term2 += x[i]*data->prc[i]*x[i]*b;
+		penalty += x[i]*data.prc[i];
 	}
-	penalty = t1 - 2*t2 + b*b;
+	penalty = (penalty - b)*(penalty - b);
 
 	for (unsigned int i = 0u; i < n; i++) {
 		for (unsigned int j = 0u; j < n; j++) {
-			covariance += x[i]*x[j]*data->cov[i][j];
+			covariance += x[i]*x[j]*data.cov[i][j];
 		}
 	}
 	
-	return t1*returns + t2*penalty + t3*covariance;
+	return theta[0]*returns + theta[1]*penalty + theta[2]*covariance;
 }
 
 void classical::inc_bvec(std::vector <int> &vec)
