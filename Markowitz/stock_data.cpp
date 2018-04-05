@@ -24,11 +24,14 @@ stock_data csv_reader::get_stock_data (std::ifstream &prc_file,
 	return data;
 }
 
+// Template functions maybe?
 void csv_reader::read_csv_row (std::ifstream &infile, std::vector <float> &vec)
 {
 	std::string buffer;
+	getline(infile, buffer, '\n');
+	std::istringstream iss(buffer);
 	for (unsigned int i = 0; i < vec.size(); i++) {
-		getline(infile, buffer, ',') ;
+		getline(iss, buffer, ',') ;
 		std::istringstream ss(buffer);
 		ss >> vec[i];
 	}
@@ -41,5 +44,6 @@ void csv_reader::read_csv (std::ifstream &infile, std::vector <std::vector<float
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		read_csv_row(infile, vec[i]);
 	}
+
 	return;
 }
