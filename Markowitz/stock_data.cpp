@@ -5,22 +5,23 @@
 
 #include <iostream>
 
-void csv_reader::get_stock_data (stock_data &data,
-                                 std::ifstream &prc_file,
+// FEEL FREE TO CHANGE THESE FUNCTIONS HOWEVER YOU WANT
+
+stock_data csv_reader::get_stock_data (std::ifstream &prc_file,
                                  std::ifstream &ret_file,
                                  std::ifstream &cov_file,
                                  unsigned int n)
 {
+	stock_data data;
 	data.prc.resize(n);
 	data.ret.resize(n);
-
 	data.cov.resize(n);
 	for (unsigned int i = 0; i < n; i++) data.cov[i].resize(n);
 
 	read_csv_row(prc_file, data.prc);
 	read_csv_row(ret_file, data.ret);
 	read_csv(cov_file, data.cov);
-	return;
+	return data;
 }
 
 void csv_reader::read_csv_row (std::ifstream &infile, std::vector <float> &vec)

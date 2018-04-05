@@ -2,78 +2,50 @@
 #include <cmath>
 #include "markowitz.h"
 
+#define DEBUG
+
+#ifdef DEBUG
+	#include <stdio.h>
+#endif
+
 using namespace markowitz;
 
-classical::classical(stock_data input, unsigned int budget)
+/* Initialize the QUBO matrix for the markowitz model */
+classical::classical(const stock_data& data, unsigned int budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
 {
-	data = input;
-	n = input.prc.size();
-	b = budget;
-}
+	theta[0] = theta_in[0];
+	theta[1] = theta_in[1];
+	theta[2] = theta_in[2];
 
-classical::classical(stock_data input, unsigned int budget, float *th)
-{
-	data = input;
-	n = input.prc.size();
-	theta[0] = th[0];
-	theta[1] = th[1];
-	theta[2] = th[2];
-	b = budget;
-}
+	Qmatrix.resize(n);
+	for (int i = 0; i < n; i++) 
+		Qmatrix[i].resize(n, 0.0f);
 
-void classical::adjust_weights(float *th)
-{
-	theta[0] = th[0];
-	theta[1] = th[1];
-	theta[2] = th[2];
-}
-
-void classical::solve()
-{
-	std::vector<int> trial(n, 0);
-	minimum = compute(trial);
-	solution = trial;
-
-	for (int i = 0; i < pow(2, n) - 1; i++){
-		inc_bvec(trial);
-		float result = compute(trial);
-		if (result < minimum) {
-			minimum = result;
-			solution = trial;
+// TODO: Is this the correct QUBO matrix?
+	for (int r = 0; r < n; r++) {
+		for (int c = r + 1; c < n; c++) {
+			Qmatrix[r][c] = theta[1]*data.cov[r][c] + 2*theta[2]*data.prc[r]*data.prc[c];
 		}
 	}
-}
 
-float classical::compute(std::vector <int> &x)
-{
-	float returns = 0.0f;
-	float penalty = 0.0f;
-	float covariance = 0.0f;
-
-	for (unsigned int i = 0u; i < n; i++) {
-		returns -= x[i]*data.ret[i];
+	for (int i = 0; i < n; i++) {
+		Qmatrix[i][i] += -theta[0]*data.ret[i] + theta[2]*data.prc[i]*data.prc[i] - 2*theta[2]*data.prc[i]*budget + theta[1]*data.cov[i][i];
 	}
 
-	for (unsigned int i = 0u; i < n; i++) {
-		penalty += x[i]*data.prc[i];
-	}
-	penalty = (penalty - b)*(penalty - b);
-
-	for (unsigned int i = 0u; i < n; i++) {
-		for (unsigned int j = 0u; j < n; j++) {
-			covariance += x[i]*x[j]*data.cov[i][j];
+#ifdef DEBUG
+	for (int r = 0; r < n; r++) {
+		printf ("[");
+		for (int c = 0; c < n; c++) {
+			printf ("%8.2f,", Qmatrix[r][c]);
 		}
+		printf ("]\n");
 	}
-	
-	return theta[0]*returns + theta[1]*penalty + theta[2]*covariance;
+#endif
 }
 
-void classical::inc_bvec(std::vector <int> &vec)
+quantum::quantum(const stock_data& data, unsigned int budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
 {
-	int c = 1;
-	for (unsigned int i = 0U; i < vec.size(); i++) {
-		int temp = vec[i];
-		vec[i] = vec[i] ^ c;
-		c = c & temp;
-	}
+	theta[0] = theta_in[0];
+	theta[1] = theta_in[1];
+	theta[2] = theta_in[2];
 }
