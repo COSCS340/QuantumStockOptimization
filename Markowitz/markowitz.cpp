@@ -20,7 +20,6 @@ model::model(const stock_data& data, unsigned int budget, const float theta[3]) 
 
 std::vector <int> model::portfolio(operation mode)
 {
-	std::vector <int> myvec(10, 0);
 	if (mode == quantum) {
 		xacc::info("Setting up quantum graph");
 		auto graph = qmodel.graph();
@@ -165,18 +164,7 @@ std::vector<int> Quantum::embedding(std::shared_ptr<xacc::AcceleratorBuffer> buf
 		results.at(counter) = xi;
 		counter++;
 	}
-/*
-	// Compute value of optimization function
-	float optval = 0.;
-	for(int row = 0; row < n; row++) {
-		for(int col = row+1; col < n; col++) {
-			optval = optval + results[row]*Qmatrix[row][col]*results[col];
-		};
-		optval = optval + Qmatrix[row][row]*results[row];
-	};
-	optval = optval + cfactor;
-	std::cout << "Optimum value = " << optval << std::endl;
-*/
+
 	float min = 0;
 	for (int i = 0; i < n; i++) {
 		float sum = 0;
@@ -194,6 +182,7 @@ std::vector<int> Quantum::embedding(std::shared_ptr<xacc::AcceleratorBuffer> buf
 
 Quantum::Quantum(const stock_data& data, unsigned int budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
 {
+	// Theta values
 	theta[0] = theta_in[0];
 	theta[1] = theta_in[1];
 	theta[2] = theta_in[2];

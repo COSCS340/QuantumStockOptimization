@@ -10,20 +10,17 @@
 #include "HUBO.hpp"
 
 int main(int argc, char **argv) {
-	std::ifstream prc_file;
-	std::ifstream ret_file;
-	std::ifstream cov_file;
-	
-	prc_file.open(argv[1]);
-	ret_file.open(argv[2]);
-	cov_file.open(argv[3]);
-	float theta[3] = {1, 1, 1};
-	int budget;
-	int n;
+	std::ifstream tickerfile;
+	std::string tfilename;
+
+	float theta[3] = {.5, .25, .25};
+	unsigned int budget;
+	unsigned int n;
 
 	// Indicate to XACC that we want to take an
 	xacc::addCommandLineOption("b",	 "The budget available to the portfolio (debt)");
 	xacc::addCommandLineOption("n",	 "The number of the stocks to choose between"); 
+	xacc::addCommandLineOption("t",	 "The file containing ticker symbols values"); 
 	xacc::addCommandLineOption("t1", "Theta_1 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t2", "Theta_2 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t3", "Theta_3 non-negative valued weighted"); 
@@ -36,6 +33,9 @@ int main(int argc, char **argv) {
 
 	if (options->exists("n")) {
 		n = std::stoi((*options)["n"]);
+	}
+	if (options->exists("t")) {
+		tfilename = ((*options)["t"]);
 	}
 	if (options->exists("t1")) {
 		theta[0] = std::stof((*options)["t1"]);
@@ -50,26 +50,55 @@ int main(int argc, char **argv) {
 		budget = std::stoi((*options)["b"]);
 	}
 
-	stock_data my_data = csv_reader::get_stock_data (prc_file, ret_file, cov_file, n);
-
-	markowitz::model classic(my_data, budget, theta);
-
-	std::vector <int> soln = classic.portfolio(markowitz::classical);
-
-	for (int i = 0; i < soln.size(); i++) {
-		printf ("%d", soln[i]);
+	tickerfile.open(tfilename);
+	if (!tickerfile.is_open()) {
+		xacc::error("Failed to open file");
+		return EXIT_FAILURE;
 	}
-	printf ("\n");
 
-	std::vector <int> qsoln = classic.portfolio(markowitz::quantum);
-
-	for (int i = 0; i < qsoln.size(); i++) {
-		printf ("%d", qsoln[i]);
+	std::string symbol;
+	std::vector <std::string> tickers(n);
+	getline(tickerfile, symbol, '\n');
+	std::istringstream iss(symbol);
+	for (unsigned int i = 0; i < tickers.size(); i++) {
+		getline(iss, symbol, ',') ;
+		std::istringstream ss(symbol);
+		ss >> tickers[i];
 	}
-	printf ("\n");
 
-//	markowitz::quantum qclassic(my_data, 100, theta);
+//	stock_data data = get_stock_data(tickers);
+	/* Placeholder */
+	std::ifstream prc_file;
+	std::ifstream ret_file;
+	std::ifstream cov_file;
+	prc_file.open("../Tests/prices.csv");
+	ret_file.open("../Tests/averages.csv");
+	cov_file.open("../Tests/covariances.csv");
+	stock_data data = csv_reader::get_stock_data(prc_file, ret_file, cov_file, n);
+
+	
+	markowitz::model markmodel(data, budget, theta);
+	std::vector <int> portfolio = markmodel.portfolio(markowitz::quantum);
+
+	std::ofstream outfile;
+	outfile.open("portfolio.csv");
+	for (unsigned int i = 0; i < portfolio.size(); i++) {
+		std::cout << portfolio[i] << ", ";
+		outfile << portfolio[i] << ", ";
+	}
+	std::cout << std::endl;
+	outfile << std::endl;
+
+	portfolio = markmodel.portfolio(markowitz::classical);
+
+	for (unsigned int i = 0; i < portfolio.size(); i++) {
+		std::cout << portfolio[i] << ", ";
+		outfile << portfolio[i] << ", ";
+	}
+	std::cout << std::endl;
+	outfile << std::endl;
 
 	xacc::Finalize();
-	return 0;
+
+	return EXIT_SUCCESS;
 }
