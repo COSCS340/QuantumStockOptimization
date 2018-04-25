@@ -16,14 +16,16 @@ int main(int argc, char **argv) {
 	float theta[3] = {.5, .25, .25};
 	unsigned int budget;
 	unsigned int n;
+	bool brute = false;
 
 	// Indicate to XACC that we want to take an
 	xacc::addCommandLineOption("b",	 "The budget available to the portfolio (debt)");
 	xacc::addCommandLineOption("n",	 "The number of the stocks to choose between"); 
-	xacc::addCommandLineOption("t",	 "The file containing ticker symbols values"); 
+	xacc::addCommandLineOption("s",	 "The file containing ticker symbols values"); 
 	xacc::addCommandLineOption("t1", "Theta_1 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t2", "Theta_2 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t3", "Theta_3 non-negative valued weighted"); 
+	xacc::addCommandLineOption("classical", "Use Classical brute-force method"); 
 	xacc::Initialize(argc, argv);
 
 	auto options = xacc::RuntimeOptions::instance();
@@ -34,8 +36,8 @@ int main(int argc, char **argv) {
 	if (options->exists("n")) {
 		n = std::stoi((*options)["n"]);
 	}
-	if (options->exists("t")) {
-		tfilename = ((*options)["t"]);
+	if (options->exists("s")) {
+		tfilename = ((*options)["s"]);
 	}
 	if (options->exists("t1")) {
 		theta[0] = std::stof((*options)["t1"]);
@@ -48,6 +50,9 @@ int main(int argc, char **argv) {
 	}
 	if (options->exists("b")) {
 		budget = std::stoi((*options)["b"]);
+	}
+	if (options->exists("classical")) {
+		brute = true;
 	}
 
 	tickerfile.open(tfilename);
@@ -76,27 +81,33 @@ int main(int argc, char **argv) {
 	cov_file.open("../Tests/covariances.csv");
 	stock_data data = csv_reader::get_stock_data(prc_file, ret_file, cov_file, n);
 
-	
-	markowitz::model markmodel(data, budget, theta);
-	std::vector <int> portfolio = markmodel.portfolio(markowitz::quantum);
 
-	std::ofstream outfile;
-	outfile.open("portfolio.csv");
-	for (unsigned int i = 0; i < portfolio.size(); i++) {
-		std::cout << portfolio[i] << ", ";
-		outfile << portfolio[i] << ", ";
+	if (!brute) {
+		markowitz::model markmodel(data, budget, theta);
+		std::vector <int> portfolio = markmodel.portfolio(markowitz::quantum);
+
+		std::ofstream outfile;
+		outfile.open("portfolio.csv");
+		for (unsigned int i = 0; i < portfolio.size(); i++) {
+			std::cout << portfolio[i] << ", ";
+			outfile << portfolio[i] << ", ";
+		}
+		std::cout << std::endl;
+		outfile << std::endl;
 	}
-	std::cout << std::endl;
-	outfile << std::endl;
+	else {
+		markowitz::model markmodel(data, budget, theta);
+		std::vector <int> portfolio = markmodel.portfolio(markowitz::classical);
 
-	portfolio = markmodel.portfolio(markowitz::classical);
-
-	for (unsigned int i = 0; i < portfolio.size(); i++) {
-		std::cout << portfolio[i] << ", ";
-		outfile << portfolio[i] << ", ";
+		std::ofstream outfile;
+		outfile.open("portfolio.csv");
+		for (unsigned int i = 0; i < portfolio.size(); i++) {
+			std::cout << portfolio[i] << ", ";
+			outfile << portfolio[i] << ", ";
+		}
+		std::cout << std::endl;
+		outfile << std::endl;
 	}
-	std::cout << std::endl;
-	outfile << std::endl;
 
 	xacc::Finalize();
 

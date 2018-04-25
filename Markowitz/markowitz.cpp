@@ -155,13 +155,13 @@ std::vector<int> Quantum::embedding(std::shared_ptr<xacc::AcceleratorBuffer> buf
 				si = 1;
 			} else {
 				std::cout << "X\n";
-				si = 3;
+				si = -1;
 			};
 		}; // sum
 
 		// Why didn't we set results sooner...
 		int xi = (0.5 * (1 + si)); // what determines plus or minus? Form of Ising model
-		results.at(counter) = xi;
+		results[counter] = xi;
 		counter++;
 	}
 
@@ -331,7 +331,7 @@ void Classical::solve()
 	minEnergy = compute(0, xvec);
 	soln = xvec;
 
-	for (int i = 1; i < pow(n, 2); i++) {
+	for (int i = 1; i < pow(2, n); i++) {
 		float energy = compute(i, xvec);
 		if (energy < minEnergy) {
 			minEnergy = energy;
