@@ -52,7 +52,7 @@ int stock_data::get_tickers(){
         }
         buf2 = strtok(buf, ",");
         currTick = buf2;
-        buf2 = strtok(NULL, "");
+        buf2 = strtok(NULL, "\r");
         currName = buf2;
         if(currTick == "currency code") continue;
         
@@ -78,7 +78,7 @@ int stock_data::get_data(){
 
         sprintf(buf, "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=%s&market=USD&apikey=G8CLVLYIVI5XYSH&datatype=csv", mit->first.c_str());
         tickerDataURL = buf;
-        sprintf(buf, "%sdata.txt", mit->second.c_str());
+        sprintf(buf, "./Data/%sdata.txt", mit->second.c_str());
         tickerDataFile = buf;
 
         printf("    %s\n    %s\n", tickerDataURL.c_str(), tickerDataFile.c_str());
