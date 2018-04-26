@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <curl/curl.h>
 
-class currency {
+class currency{
     public:
         std::string name;
         std::string code;
@@ -22,7 +22,7 @@ class currency {
 
 /* Stock data used for markotwitz model */
 
-class stock_data {
+class stock_data{
     public:
         //markowitz stuff
         std::vector <float> prc;

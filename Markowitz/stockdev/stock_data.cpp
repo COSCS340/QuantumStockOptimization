@@ -18,7 +18,6 @@ stock_data::stock_data(bool refetchList_p, bool refetchData_p){
     get_history();
     get_prices();
     calc_stats();
-    print_stats();
 }
 
 void stock_data::get_currencies(){
@@ -250,37 +249,35 @@ void stock_data::calc_stats(){
 
     for(i=0; i < (int)currencies.size(); i++){
 
-        prc.push_back(currencies[i]->price);
-        ret.push_back(currencies[i]->mean);
-
         row.clear();
         row2.clear();
 
-        for(j=i+1; j < (int)currencies.size(); j++){
+        for(j=0; j < (int)currencies.size();j++){
             covariance = 0;
+            correlation = 0;
+            if(i < j){
+                minCount = currencies[i]->values.size();
+                if((int)currencies[j]->values.size() < minCount){
+                    minCount = currencies[j]->values.size();
+                }
+                for(k=0; k < minCount; k++){
+                    covariance += (currencies[i]->values[k] - currencies[i]->mean)*(currencies[j]->values[k] - currencies[j]->mean);
+                }
+                covariance /= (float)(minCount - 1);
 
-            minCount = currencies[i]->values.size();
-            if((int)currencies[j]->values.size() < minCount){
-                minCount = currencies[j]->values.size();
+                stddev1 = 0;
+                stddev2 = 0;
+
+                for(k=0; k < minCount; k++){
+                    stddev1 += pow((currencies[i]->values[k] - currencies[i]->mean),2);
+                    stddev2 += pow((currencies[j]->values[k] - currencies[j]->mean),2);
+                }
+                stddev1 /= (float)(minCount - 1);
+                stddev2 /= (float)(minCount - 1);
+
+                correlation = covariance / (stddev1*stddev2);
             }
-            for(k=0; k < minCount; k++){
-                covariance += (currencies[i]->values[k] - currencies[i]->mean)*(currencies[j]->values[k] - currencies[j]->mean);
-            }
-            covariance /= (float)(minCount - 1);
             row.push_back(covariance);
-
-            stddev1 = 0;
-            stddev2 = 0;
-
-            /*correlation calculation*/
-            for(k=0; k < minCount; k++){
-                stddev1 += pow((currencies[i]->values[k] - currencies[i]->mean),2);
-                stddev2 += pow((currencies[j]->values[k] - currencies[j]->mean),2);
-            }
-            stddev1 /= (float)(minCount - 1);
-            stddev2 /= (float)(minCount - 1);
-
-            correlation = covariance / (stddev1*stddev2);
             row2.push_back(correlation);
         }
 
@@ -295,25 +292,37 @@ void stock_data::print_stats(){
     for(i=0; i < (int)currencies.size(); i++){
         printf("%d: %s:\n", i, currencies[i]->name.c_str());
         if(currencies[i]->values.size() != 0){
-            printf("  MEAN:%f\n", currencies[i]->mean);
+            printf("  MEAN:%.2f\n", currencies[i]->mean);
         }
         if(currencies[i]->price != -1){
-            printf("  PRICE:%f\n", currencies[i]->price);
+            printf("  PRICE:%.2f\n", currencies[i]->price);
         }
     }
 
     printf("Covariance Matrix\n");
+    printf("     ");
     for(i=0; i < (int)currencies.size(); i++){
+        printf("%12s ", currencies[i]->code.c_str());
+    }
+    printf("\n");
+    for(i=0; i < (int)currencies.size(); i++){
+        printf("%5s", currencies[i]->code.c_str());
         for(j=0; j < (int)cov[i].size(); j++){
-            printf("%f  ", cov[i][j]);
+            printf("%12.3f ", cov[i][j]);
         }
         printf("\n");
     }
 
     printf("Correlation Matrix\n");
+    printf("     ");
     for(i=0; i < (int)currencies.size(); i++){
+        printf("%12s ", currencies[i]->code.c_str());
+    }
+    printf("\n");
+    for(i=0; i < (int)currencies.size(); i++){
+        printf("%5s", currencies[i]->code.c_str());
         for(j=0; j < (int)cor[i].size(); j++){
-            printf("%f  ", cor[i][j]);
+            printf("%12.3f ", cor[i][j]);
         }
         printf("\n");
     }

@@ -25,5 +25,6 @@ int main(int argc, char **argv) {
     
     data = new stock_data(refetchList, refetchData);
 
+    data->print_stats();
     delete data;
 }
