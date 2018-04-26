@@ -6,9 +6,21 @@
 #include <iostream>
 #include <map>
 #include <string.h>
+#include <unistd.h>
+#include <cstdlib>
 #include <curl/curl.h>
 
+class currency {
+    public:
+        std::string name;
+        std::string code;
+        double mean;
+        double price;
+        std::vector<double> values;
+};
+
 /* Stock data used for markotwitz model */
+
 class stock_data {
     public:
         //markowitz stuff
@@ -17,23 +29,18 @@ class stock_data {
         std::vector <std::vector<float> > cov; // Upper Triangular matrix
 
         //other stuff
-        std::map<std::string, std::string> tickers; 
+        std::vector<currency*> currencies;
+        bool refetchList;
+        bool refetchData;
 
         //methods
-        stock_data();
-        int get_tickers();
-        int get_data();
+        stock_data(bool refetchList_p, bool refectData_p);
+        void get_currencies();
+        void get_history();
+        void get_prices();
+        void calc_stats();
 };
 
-
-/* Legacy Functions I encourage you to overwrite them */
-/*
-namespace csv_reader {
-    stock_data get_stock_data (std::ifstream &, std::ifstream &, std::ifstream &, unsigned int);
-    void read_csv_row (std::ifstream &, std::vector <float> &);
-    void read_csv (std::ifstream &, std::vector <std::vector<float> > &);
-};
-*/
 
 /* TODO: Implement obtaining stock data */
 

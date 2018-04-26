@@ -1,3 +1,4 @@
 main
 build/
+stockdev/Data/*
 *.o
