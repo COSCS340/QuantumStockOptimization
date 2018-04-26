@@ -7,6 +7,7 @@
 #include <map>
 #include <string.h>
 #include <unistd.h>
+#include <cmath>
 #include <cstdlib>
 #include <curl/curl.h>
 
@@ -27,6 +28,7 @@ class stock_data {
         std::vector <float> prc;
         std::vector <float> ret;
         std::vector <std::vector<float> > cov; // Upper Triangular matrix
+        std::vector <std::vector<float> > cor; // Upper Triangular matrix
 
         //other stuff
         std::vector<currency*> currencies;

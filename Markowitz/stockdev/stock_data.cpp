@@ -235,11 +235,12 @@ void stock_data::calc_stats(){
     int i,j,k;
     int minCount;
     float covariance;
+    float correlation;
+    float stddev1, stddev2;
     vector<float> row;
+    vector<float> row2;
 
     for(i=0; i < (int)currencies.size(); i++){
-        if(currencies[i]->values.size() == 0) continue;
-
         currencies[i]->mean = 0;
         for(j=0;j<(int)currencies[i]->values.size();j++){
             currencies[i]->mean += currencies[i]->values[j];
@@ -248,12 +249,12 @@ void stock_data::calc_stats(){
     }
 
     for(i=0; i < (int)currencies.size(); i++){
-        if(currencies[i]->values.size() == 0) continue;
 
         prc.push_back(currencies[i]->price);
         ret.push_back(currencies[i]->mean);
 
         row.clear();
+        row2.clear();
 
         for(j=i+1; j < (int)currencies.size(); j++){
             covariance = 0;
@@ -267,9 +268,24 @@ void stock_data::calc_stats(){
             }
             covariance /= (float)(minCount - 1);
             row.push_back(covariance);
+
+            stddev1 = 0;
+            stddev2 = 0;
+
+            /*correlation calculation*/
+            for(k=0; k < minCount; k++){
+                stddev1 += pow((currencies[i]->values[k] - currencies[i]->mean),2);
+                stddev2 += pow((currencies[j]->values[k] - currencies[j]->mean),2);
+            }
+            stddev1 /= (float)(minCount - 1);
+            stddev2 /= (float)(minCount - 1);
+
+            correlation = covariance / (stddev1*stddev2);
+            row2.push_back(correlation);
         }
 
         cov.push_back(row);
+        cor.push_back(row2);
     }
 }
 
@@ -290,6 +306,14 @@ void stock_data::print_stats(){
     for(i=0; i < (int)currencies.size(); i++){
         for(j=0; j < (int)cov[i].size(); j++){
             printf("%f  ", cov[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("Correlation Matrix\n");
+    for(i=0; i < (int)currencies.size(); i++){
+        for(j=0; j < (int)cor[i].size(); j++){
+            printf("%f  ", cor[i][j]);
         }
         printf("\n");
     }
