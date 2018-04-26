@@ -18,6 +18,7 @@ stock_data::stock_data(bool refetchList_p, bool refetchData_p){
     get_history();
     get_prices();
     calc_stats();
+    print_stats();
 }
 
 void stock_data::get_currencies(){
@@ -63,6 +64,7 @@ void stock_data::get_currencies(){
         currCurr = new currency;
         currCurr->name = currName;
         currCurr->code = currCode;
+        currCurr->price = -1;
 
         currencies.push_back(currCurr);
     }
@@ -161,7 +163,6 @@ void stock_data::get_prices(){
     string currencyPriceURL;
     string currencyPriceFile;
     ifstream priceStream;
-    double price;
     double ftrash;
     int itrash;
     char buf[500];
@@ -171,8 +172,8 @@ void stock_data::get_prices(){
     int i;
 
     for(i=0; i < (int)currencies.size(); i++){
-        sprintf(buf, "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_INTRADAY&symbol=%s&market=EUR&apikey=G8CLVLYIVI5XYSH&datatype=csv", currencies[i]->code.c_str());
-        currencyPriceURL = buf;
+        sprintf(buf, "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_INTRADAY&symbol=%s&market=USD&apikey=G8CLVLYIVI5XYSH&datatype=csv", currencies[i]->code.c_str());
+            currencyPriceURL = buf;
         sprintf(buf, "./Data/%s_price.txt", currencies[i]->name.c_str());
         currencyPriceFile = buf;
 
@@ -196,7 +197,6 @@ void stock_data::get_prices(){
             sleep(3);
             fclose(fp);
         }
-/*
 
         //Then parse price file, if it has data
         fp = fopen(currencyPriceFile.c_str(),"r");
@@ -214,26 +214,18 @@ void stock_data::get_prices(){
         }
         //printf("    Parsing %s...\n", currencies[i]->name.c_str());
 
-        while(priceStream.getline(buf, 500)){
-            if(priceStream.eof()){
-                break;
-            }
-            sscanf(buf, "%d-%d-%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &itrash,
-                                                                        &itrash,
-                                                                        &itrash,
-                                                                        &open1,
-                                                                        &ftrash,
-                                                                        &ftrash,
-                                                                        &close1,
-                                                                        &open2,
-                                                                        &ftrash,
-                                                                        &ftrash,
-                                                                        &close2,
-                                                                        &ftrash);
-            currencies[i]->price = price;
-        }
+        priceStream.getline(buf, 500);
+            sscanf(buf, "%d-%d-%d %d:%d:%d,%lf,%lf,%lf,%lf", &itrash,
+                                                            &itrash,
+                                                            &itrash,
+                                                            &itrash,
+                                                            &itrash,
+                                                            &itrash,
+                                                            &currencies[i]->price,
+                                                            &ftrash,
+                                                            &ftrash,
+                                                            &ftrash);
         priceStream.close();
-  */
     }
 
     return;
@@ -249,6 +241,23 @@ void stock_data::calc_stats(){
         for(j=0;j<(int)currencies[i]->values.size();j++){
             currencies[i]->mean += currencies[i]->values[j] / (double)currencies[i]->values.size();
         }
-        printf("%s:\n  MEAN:%lf\n", currencies[i]->name.c_str() , currencies[i]->mean);
+    }
+
+    for(i=0; i < (int)currencies.size(); i++){
+        
+    }
+}
+
+void stock_data::print_stats(){
+    int i;
+
+    for(i=0; i < (int)currencies.size(); i++){
+        printf("%s:\n", currencies[i]->name.c_str());
+        if(currencies[i]->values.size() != 0){
+            printf("  MEAN:%lf\n", currencies[i]->mean);
+        }
+        if(currencies[i]->price != -1){
+            printf("  PRICE:%lf\n", currencies[i]->price);
+        }
     }
 }

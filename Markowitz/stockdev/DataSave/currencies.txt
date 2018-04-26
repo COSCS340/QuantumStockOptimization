@@ -1,0 +1,7 @@
+currency code,currency name
+BCH,Bitcoin-Cash
+BTC,Bitcoin
+ETH,Ethereum
+LTC,Litecoin
+USDT,Tether
+XRP,Ripple

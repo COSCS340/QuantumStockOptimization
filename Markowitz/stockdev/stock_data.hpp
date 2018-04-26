@@ -39,6 +39,7 @@ class stock_data {
         void get_history();
         void get_prices();
         void calc_stats();
+        void print_stats();
 };
 
 

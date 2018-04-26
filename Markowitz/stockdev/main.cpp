@@ -6,12 +6,17 @@
 
 using namespace std;
 
+void usage(){
+    fprintf(stderr, "usage: ./main refetchCurrencyList(y|n) refetchData(y|n)\n");
+}
+
 int main(int argc, char **argv) {
     stock_data* data;
     bool refetchList;
     bool refetchData;
 
     if(argc != 3){
+        usage();
         exit(1);
     }
 
