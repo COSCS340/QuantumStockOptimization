@@ -14,8 +14,8 @@ class currency {
     public:
         std::string name;
         std::string code;
-        double mean;
-        double price;
+        float mean;
+        float price;
         std::vector<double> values;
 };
 

@@ -78,8 +78,8 @@ void stock_data::get_history(){
     string currencyDataURL;
     string currencyDataFile;
     ifstream dataStream;
-    double close1, close2, open1, open2;
-    double ftrash;
+    float close1, close2, open1, open2;
+    float ftrash;
     int itrash;
     char buf[500];
     char* word;
@@ -136,7 +136,7 @@ void stock_data::get_history(){
             if(dataStream.eof()){
                 break;
             }
-            sscanf(buf, "%d-%d-%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &itrash,
+            sscanf(buf, "%d-%d-%d,%f,%f,%f,%f,%f,%f,%f,%f,%f", &itrash,
                                                                         &itrash,
                                                                         &itrash,
                                                                         &open1,
@@ -163,7 +163,7 @@ void stock_data::get_prices(){
     string currencyPriceURL;
     string currencyPriceFile;
     ifstream priceStream;
-    double ftrash;
+    float ftrash;
     int itrash;
     char buf[500];
     char* word;
@@ -215,7 +215,7 @@ void stock_data::get_prices(){
         //printf("    Parsing %s...\n", currencies[i]->name.c_str());
 
         priceStream.getline(buf, 500);
-            sscanf(buf, "%d-%d-%d %d:%d:%d,%lf,%lf,%lf,%lf", &itrash,
+            sscanf(buf, "%d-%d-%d %d:%d:%d,%f,%f,%f,%f", &itrash,
                                                             &itrash,
                                                             &itrash,
                                                             &itrash,
@@ -232,32 +232,65 @@ void stock_data::get_prices(){
 }
 
 void stock_data::calc_stats(){
-    int i,j;
+    int i,j,k;
+    int minCount;
+    float covariance;
+    vector<float> row;
 
     for(i=0; i < (int)currencies.size(); i++){
         if(currencies[i]->values.size() == 0) continue;
 
         currencies[i]->mean = 0;
         for(j=0;j<(int)currencies[i]->values.size();j++){
-            currencies[i]->mean += currencies[i]->values[j] / (double)currencies[i]->values.size();
+            currencies[i]->mean += currencies[i]->values[j];
         }
+        currencies[i]->mean /= (float)currencies[i]->values.size();
     }
 
     for(i=0; i < (int)currencies.size(); i++){
-        
+        if(currencies[i]->values.size() == 0) continue;
+
+        prc.push_back(currencies[i]->price);
+        ret.push_back(currencies[i]->mean);
+
+        row.clear();
+
+        for(j=i+1; j < (int)currencies.size(); j++){
+            covariance = 0;
+
+            minCount = currencies[i]->values.size();
+            if((int)currencies[j]->values.size() < minCount){
+                minCount = currencies[j]->values.size();
+            }
+            for(k=0; k < minCount; k++){
+                covariance += (currencies[i]->values[k] - currencies[i]->mean)*(currencies[j]->values[k] - currencies[j]->mean);
+            }
+            covariance /= (float)(minCount - 1);
+            row.push_back(covariance);
+        }
+
+        cov.push_back(row);
     }
 }
 
 void stock_data::print_stats(){
-    int i;
+    int i, j;
 
     for(i=0; i < (int)currencies.size(); i++){
-        printf("%s:\n", currencies[i]->name.c_str());
+        printf("%d: %s:\n", i, currencies[i]->name.c_str());
         if(currencies[i]->values.size() != 0){
-            printf("  MEAN:%lf\n", currencies[i]->mean);
+            printf("  MEAN:%f\n", currencies[i]->mean);
         }
         if(currencies[i]->price != -1){
-            printf("  PRICE:%lf\n", currencies[i]->price);
+            printf("  PRICE:%f\n", currencies[i]->price);
         }
+    }
+
+    printf("Covariance Matrix\n");
+    for(i=0; i < (int)currencies.size(); i++){
+        for(j=0; j < (int)cov[i].size(); j++){
+            printf("%f  ", cov[i][j]);
+        }
+        printf("\n");
     }
 }
