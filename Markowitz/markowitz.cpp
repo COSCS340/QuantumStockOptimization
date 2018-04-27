@@ -5,7 +5,7 @@
 #include "XACC.hpp"
 #include <iostream>
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 	#include <stdio.h>
@@ -13,7 +13,7 @@
 
 using namespace markowitz;
 
-model::model(const stock_data& data, unsigned int budget, const float theta[3]) : qmodel(data, budget, theta), cmodel(data, budget, theta)
+model::model(const stock_data& data, const float budget, const float theta[3]) : qmodel(data, budget, theta), cmodel(data, budget, theta)
 {
 	return;
 }
@@ -180,7 +180,7 @@ std::vector<int> Quantum::embedding(std::shared_ptr<xacc::AcceleratorBuffer> buf
 }
 
 
-Quantum::Quantum(const stock_data& data, unsigned int budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
+Quantum::Quantum(const stock_data& data, const float budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
 {
 	// Theta values
 	theta[0] = theta_in[0];
@@ -292,7 +292,7 @@ std::shared_ptr<xacc::quantum::DWGraph> Quantum::graph()
 }
 
 /* Initialize the QUBO matrix for the markowitz model */
-Classical::Classical(const stock_data& data, unsigned int budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
+Classical::Classical(const stock_data& data, const float budget, const float theta_in[3]) : budget(budget), n(data.prc.size())
 {
 	theta[0] = theta_in[0];
 	theta[1] = theta_in[1];

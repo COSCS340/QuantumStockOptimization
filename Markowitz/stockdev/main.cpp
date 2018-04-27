@@ -11,7 +11,6 @@ void usage(){
 }
 
 int main(int argc, char **argv) {
-    stock_data* data;
     bool refetchList;
     bool refetchData;
 
@@ -23,8 +22,7 @@ int main(int argc, char **argv) {
     refetchList = (strcmp(argv[1],"y") == 0) ? true : false;
     refetchData = (strcmp(argv[2],"y") == 0) ? true : false;
     
-    data = new stock_data(refetchList, refetchData);
+    stock_data data(refetchList, refetchData);
 
-    data->print_stats();
-    delete data;
+    data.print_stats();
 }

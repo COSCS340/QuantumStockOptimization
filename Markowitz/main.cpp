@@ -3,23 +3,31 @@
 #include <cstdlib>
 #include <stdio.h>
 
-#include "stock_data.h"
 #include "markowitz.h"
+#include "stock_data.h"
 
 #include "XACC.hpp"
 #include "HUBO.hpp"
+#include <curl/curl.h>
+
+size_t write_datas(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
 
 int main(int argc, char **argv) {
 	std::ifstream tickerfile;
 	std::string tfilename;
 
 	float theta[3] = {.5, .25, .25};
-	unsigned int budget;
+	float budget;
 	unsigned int n;
+	unsigned int count;
 	bool brute = false;
 
 	// Indicate to XACC that we want to take an
 	xacc::addCommandLineOption("b",	 "The budget available to the portfolio (debt)");
+	xacc::addCommandLineOption("c",	 "The maximum number of one stock to choose");
 	xacc::addCommandLineOption("n",	 "The number of the stocks to choose between"); 
 	xacc::addCommandLineOption("s",	 "The file containing ticker symbols values"); 
 	xacc::addCommandLineOption("t1", "Theta_1 non-negative valued weighted"); 
@@ -49,38 +57,18 @@ int main(int argc, char **argv) {
 		theta[2] = std::stof((*options)["t3"]);
 	}
 	if (options->exists("b")) {
-		budget = std::stoi((*options)["b"]);
+		budget = std::stof((*options)["b"]);
+	}
+	if (options->exists("c")) {
+		count = std::stoi((*options)["c"]);
 	}
 	if (options->exists("classical")) {
 		brute = true;
 	}
 
-	tickerfile.open(tfilename);
-	if (!tickerfile.is_open()) {
-		xacc::error("Failed to open file");
-		return EXIT_FAILURE;
-	}
+    stock_data data(false, false);
 
-	std::string symbol;
-	std::vector <std::string> tickers(n);
-	getline(tickerfile, symbol, '\n');
-	std::istringstream iss(symbol);
-	for (unsigned int i = 0; i < tickers.size(); i++) {
-		getline(iss, symbol, ',') ;
-		std::istringstream ss(symbol);
-		ss >> tickers[i];
-	}
-
-//	stock_data data = get_stock_data(tickers);
-	/* Placeholder */
-	std::ifstream prc_file;
-	std::ifstream ret_file;
-	std::ifstream cov_file;
-	prc_file.open("../Tests/prices.csv");
-	ret_file.open("../Tests/averages.csv");
-	cov_file.open("../Tests/covariances.csv");
-	stock_data data = csv_reader::get_stock_data(prc_file, ret_file, cov_file, n);
-
+    data.print_stats();
 
 	if (!brute) {
 		markowitz::model markmodel(data, budget, theta);

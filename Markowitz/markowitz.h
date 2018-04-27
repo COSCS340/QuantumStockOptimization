@@ -13,7 +13,7 @@ namespace markowitz {
 			std::vector <std::vector <float> > Qmatrix; // Matrix to hold QUBO data
 			std::vector <std::vector <float> > Jmatrix; // Matrix to hold Ising couplings
 			std::vector <float> Hvector; // Vector to hold Ising linear biases
-			unsigned int budget; // Budget for the problem
+			const float budget; // Budget for the problem
 			unsigned int n; // Number of stocks
 			float theta[3]; // Theta superposition weights
 			float cfactor;  // Constant factor from the QUBO
@@ -22,7 +22,7 @@ namespace markowitz {
 			void CvtQBUO2Ising();
 
 		public:
-			Quantum(const stock_data& data, unsigned int budget, const float theta_in[3]);
+			Quantum(const stock_data& data, const float budget, const float theta_in[3]);
 			std::vector<int> embedding(std::shared_ptr<xacc::AcceleratorBuffer> buffer); 
 			int size() {return n;};
 
@@ -33,7 +33,7 @@ namespace markowitz {
 		protected:
 			std::vector <std::vector <float> > Qmatrix; // Matrix to hold QUBO data
 			std::vector <int> soln; // BUffer for current solution
-			unsigned int budget;
+			const float budget;
 			unsigned int n;
 			float minEnergy;
 			float cfactor;
@@ -47,7 +47,7 @@ namespace markowitz {
 			std::vector<int> getMinSoln() {return soln;}
 			int size() {return n;};
 
-			Classical(const stock_data& data, unsigned int budget, const float theta_in[3]);
+			Classical(const stock_data& data, const float budget, const float theta_in[3]);
 	};
 	class model {
 		protected:
@@ -55,7 +55,7 @@ namespace markowitz {
 			Classical cmodel;
 			
 		public:
-			model(const stock_data& data, unsigned int budget, const float theta[3]);
+			model(const stock_data& data, const float budget, const float theta[3]);
 			std::vector <int> portfolio(operation type);
 			
 
