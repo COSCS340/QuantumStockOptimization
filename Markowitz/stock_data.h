@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <curl/curl.h>
 
-
 class currency{
     public:
         std::string name;
@@ -42,6 +41,7 @@ class stock_data{
         void get_history();
         void get_prices();
         void calc_stats();
+        void normalize();
         void print_stats();
 };
 
