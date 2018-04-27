@@ -5,7 +5,7 @@
 #include "XACC.hpp"
 #include <iostream>
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 	#include <stdio.h>

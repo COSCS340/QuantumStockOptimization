@@ -8,12 +8,6 @@
 
 #include "XACC.hpp"
 #include "HUBO.hpp"
-#include <curl/curl.h>
-
-size_t write_datas(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    size_t written = fwrite(ptr, size, nmemb, stream);
-    return written;
-}
 
 int main(int argc, char **argv) {
 	std::ifstream tickerfile;
@@ -24,12 +18,13 @@ int main(int argc, char **argv) {
 	unsigned int n;
 	unsigned int count;
 	bool brute = false;
+	bool file = false;
 
 	// Indicate to XACC that we want to take an
 	xacc::addCommandLineOption("b",	 "The budget available to the portfolio (debt)");
 	xacc::addCommandLineOption("c",	 "The maximum number of one stock to choose");
 	xacc::addCommandLineOption("n",	 "The number of the stocks to choose between"); 
-	xacc::addCommandLineOption("s",	 "The file containing ticker symbols values"); 
+	xacc::addCommandLineOption("file",	 "Use the files"); 
 	xacc::addCommandLineOption("t1", "Theta_1 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t2", "Theta_2 non-negative valued weighted"); 
 	xacc::addCommandLineOption("t3", "Theta_3 non-negative valued weighted"); 
@@ -65,10 +60,17 @@ int main(int argc, char **argv) {
 	if (options->exists("classical")) {
 		brute = true;
 	}
+	if (options->exists("file")) {
+		file = true;
+	}
 
-    stock_data data(false, false);
-
-    data.print_stats();
+	std::ifstream prc_file;
+	std::ifstream ret_file;
+	std::ifstream cov_file;
+	prc_file.open("../Tests/prices.csv");
+	ret_file.open("../Tests/averages.csv");
+	cov_file.open("../Tests/covariances.csv");
+	stock_data data = csv_reader::get_stock_data(prc_file, ret_file, cov_file, n);
 
 	if (!brute) {
 		markowitz::model markmodel(data, budget, theta);
@@ -96,6 +98,7 @@ int main(int argc, char **argv) {
 		std::cout << std::endl;
 		outfile << std::endl;
 	}
+
 
 	xacc::Finalize();
 
