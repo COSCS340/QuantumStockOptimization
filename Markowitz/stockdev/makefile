@@ -12,5 +12,5 @@ main: main.cpp stock_data.o
 
 #0bject Files
 
-stock_data.o: stock_data.cpp stock_data.hpp
+stock_data.o: stock_data.cpp stock_data.h
 	$(CPP) $(CFLAGS) stock_data.cpp -c -o stock_data.o $(LFLAGS)

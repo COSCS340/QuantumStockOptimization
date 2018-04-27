@@ -250,13 +250,16 @@ void stock_data::calc_stats(){
 
     for(i=0; i < (int)currencies.size(); i++){
 
+        ret.push_back(currencies[i]->mean);
+        prc.push_back(currencies[i]->price);
+
         row.clear();
         row2.clear();
 
         for(j=0; j < (int)currencies.size();j++){
             covariance = 0;
             correlation = 0;
-            if(i < j){
+            if(i <= j){
                 minCount = currencies[i]->values.size();
                 if((int)currencies[j]->values.size() < minCount){
                     minCount = currencies[j]->values.size();
@@ -275,6 +278,9 @@ void stock_data::calc_stats(){
                 }
                 stddev1 /= (float)(minCount - 1);
                 stddev2 /= (float)(minCount - 1);
+
+                stddev1 = sqrt(stddev1);
+                stddev2 = sqrt(stddev2);
 
                 correlation = covariance / (stddev1*stddev2);
             }

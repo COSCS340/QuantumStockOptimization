@@ -1,4 +1,4 @@
-#include "stock_data.hpp"
+#include "stock_data.h"
 using namespace std;
 
 /* global */
@@ -7,6 +7,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
+
 
 /* stock_data class */
 
@@ -22,7 +23,7 @@ stock_data::stock_data(bool refetchList_p, bool refetchData_p){
 
 void stock_data::get_currencies(){
     const string currenciesURL = "https://www.alphavantage.co/digital_currency_list/";
-    const string currenciesFile = "./Data/currencies.txt";
+    const string currenciesFile = "../Data/currencies.txt";
     char buf[200];
     char* currCode;
     char* currName;
@@ -89,7 +90,7 @@ void stock_data::get_history(){
     for(i=0; i < (int)currencies.size(); i++){
         sprintf(buf, "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=%s&market=USD&apikey=G8CLVLYIVI5XYSH&datatype=csv", currencies[i]->code.c_str());
         currencyDataURL = buf;
-        sprintf(buf, "./Data/%s_history.txt", currencies[i]->name.c_str());
+        sprintf(buf, "../Data/%s_history.txt", currencies[i]->name.c_str());
         currencyDataFile = buf;
 
         if(refetchData){
@@ -249,13 +250,16 @@ void stock_data::calc_stats(){
 
     for(i=0; i < (int)currencies.size(); i++){
 
+        ret.push_back(currencies[i]->mean);
+        prc.push_back(currencies[i]->price);
+
         row.clear();
         row2.clear();
 
         for(j=0; j < (int)currencies.size();j++){
             covariance = 0;
             correlation = 0;
-            if(i < j){
+            if(i <= j){
                 minCount = currencies[i]->values.size();
                 if((int)currencies[j]->values.size() < minCount){
                     minCount = currencies[j]->values.size();
@@ -274,6 +278,9 @@ void stock_data::calc_stats(){
                 }
                 stddev1 /= (float)(minCount - 1);
                 stddev2 /= (float)(minCount - 1);
+
+                stddev1 = sqrt(stddev1);
+                stddev2 = sqrt(stddev2);
 
                 correlation = covariance / (stddev1*stddev2);
             }
