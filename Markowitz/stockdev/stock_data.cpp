@@ -18,8 +18,8 @@ stock_data::stock_data(bool refetchList_p, bool refetchData_p){
     get_currencies();
     get_history();
     get_prices();
-    calc_stats();
     normalize();
+    calc_stats();
 }
 
 void stock_data::get_currencies(){
@@ -296,11 +296,13 @@ void stock_data::calc_stats(){
 
 
 void stock_data::normalize(){
-    int i;
+    int i,j;
 
-    for(i=0;i < (int)prc.size();i++){
-        ret[i] *= (1.0/prc[i]);
-        prc[i] *= (1.0/prc[i]);
+    for(i=0;i < (int)currencies.size();i++){
+        for(j=0;j < (int)currencies[i]->values.size(); j++){
+            currencies[i]->values[j] *= (1.0/currencies[i]->price);
+        }
+        currencies[i]->price *= (1.0/currencies[i]->price);
     }
 }
 
